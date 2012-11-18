@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<!--
+clickGL.html
+
+On mousedown or touchstart, change the canvas background from black to white.
+
+Similar to clickSmall.html but with a WebGL context.
+-->
+<html>
+<head>
+<style>
+* {
+    overflow: hidden;
+}
+html, body {
+  width: 100%;
+  height: 100%;
+}
+body {
+  background-color: #300;
+}
+#canvas {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  top: 10px;
+  left: 10px;
+}
+</style>
+</head>
+<body>
+<canvas id="canvas" width="500" height="500"></canvas>
+<script>
+var canvas = document.getElementById('canvas');
+var gl = canvas.getContext('experimental-webgl');
+var pressed = false;
+var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame;
+var rafCallback = function() {
+  var color = pressed ? 1 : 0;
+  gl.clearColor(color, color, color, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  raf(rafCallback);
+};
+rafCallback();
+
+canvas.ontouchstart = function(evt) { pressed = true; }
+canvas.ontouchend = function(evt) { pressed = false; }
+canvas.onmousedown = function(evt) { pressed = true; }
+canvas.onmouseup = function(evt) { pressed = false; }
+</script>
+</body>
+</html>
