@@ -27,7 +27,7 @@ static const char CALIBRATE = 'd';
 static const char RESULTS = 'e';
 
 // click test variables
-const int clickTestRuns = 20;
+const int clickTestRuns = 150;
 unsigned clickTimes[clickTestRuns];
 
 // scroll test variables
@@ -56,11 +56,11 @@ void loop(void) {
       char val = Serial.read();
       switch (val) {
         case (CLICKTEST):
-          delay(1000); // TESTING ONLY
+          delay(5000); // TESTING ONLY
           clickTest();
           return;
         case (SCROLLTEST):
-          delay(1000); // TESTING ONLY
+          delay(5000); // TESTING ONLY
           scrollTest();
           return;
         case (RESETBT):
@@ -102,7 +102,7 @@ void clickTest() {
   int cumulative = 0;
   int initialPhotoState = photoState();
   for (int test = 0; test < clickTestRuns; test++) {
-    delay(555); // delay between tests. Note: make sure this won't sync on vsync! (aka not a multiple of 16.67ms)
+    delay(503); // delay between tests. Note: make sure this won't sync on vsync! (aka not a multiple of 16.67ms)
 
     startTime = micros();
     clickMouse();
