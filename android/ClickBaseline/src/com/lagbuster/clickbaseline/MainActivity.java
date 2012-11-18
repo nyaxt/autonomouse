@@ -1,7 +1,7 @@
 package com.lagbuster.clickbaseline;
 
-import android.os.Bundle;
 import android.app.Activity;
+import android.os.Bundle;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -10,12 +10,13 @@ import android.view.View.OnTouchListener;
 /*
  * This is a simple app for determining the input
  * lag baseline performance. When pressed, the background
- * turns from white to black.
+ * turns from black to white.
  */
 public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         View main = (View) findViewById(R.id.mainlayout);
@@ -28,7 +29,6 @@ public class MainActivity extends Activity {
 					v.setBackgroundColor(0xFFFFFFFF);
 					break;
 				case (MotionEvent.ACTION_UP):
-				case (MotionEvent.ACTION_CANCEL):
 					v.setBackgroundColor(0xFF000000);
 					break;
 				}
