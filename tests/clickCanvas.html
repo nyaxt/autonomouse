@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<!--
+clickCanvas.html
+
+On mousedown or touchstart, change the canvas background from black to white.
+
+Similar to clickSmall.html but with a canvas (for platforms that accelerate canvas).
+-->
+<html>
+<head>
+<style>
+* {
+    overflow: hidden;
+}
+html, body {
+  width: 100%;
+  height: 100%;
+}
+body {
+  background-color: #003;
+}
+#canvas {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  top: 10px;
+  left: 10px;
+}
+</style>
+</head>
+<body onload="init()">
+<canvas id="canvas"></canvas>
+<script>
+var canvas = document.getElementById('canvas');
+var context = canvas.getContext('2d');
+canvas.ontouchstart = function() {
+  context.fillStyle = "#fff";
+  context.fillRect(0, 0, 500, 500);
+}
+canvas.ontouchend = function() {
+  context.fillStyle = "#000";
+  context.fillRect(0, 0, 500, 500);
+}
+canvas.onmousedown = function(evt) {
+  context.fillStyle = "#fff";
+  context.fillRect(0, 0, 500, 500);
+}
+canvas.onmouseup = function() {
+  context.fillStyle = "#000";
+  context.fillRect(0, 0, 500, 500);
+}
+
+function init() {
+  context.fillStyle = "#000";
+  context.fillRect(0, 0, 500, 500);
+}
+</script>
+</body>
+</html>
