@@ -1,5 +1,6 @@
 // Autonomouse
 // TODO: disable interrupts
+// TODO: scroll test isn't fully baked yet and needs work
 
 // pin settings
 const int photocellPin = 5; // analog pin
@@ -28,7 +29,7 @@ static const char MOVEMOUSELEFT = '3';
 static const char MOVEMOUSERIGHT = '4';
 
 // click test vars
-const int clickTestRuns = 150;
+const int clickTestRuns = 5;
 unsigned clickTimes[clickTestRuns];
 const int clickTestDelay = 503; // delay between tests. Make sure this won't sync on vsync! (aka not a multiple of 16.67ms)
 
@@ -57,7 +58,7 @@ void loop(void) {
 
   while(true) {
     delay(100); // Don't waste power in menus
-    if (Serial.available() > 0) {
+    if (thereIsUserInput()) {
       char val = Serial.read();
       switch (val) {
         case (CLICKTEST):
@@ -101,10 +102,24 @@ void clickTest() {
 
   unsigned long startTime;
   unsigned long endTime;
-  int cumulative = 0;
+
+  // capture the initial state, a click should register the opposite state
+  // (for testing black->white clicks and white->black)
   int initialPhotoState = photoState();
+
+  // use Knuth's online variance algorithm
+  // (see http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm)
+  double mean = 0;
+  double m2 = 0;
+  double delta;
+
   for (int test = 0; test < clickTestRuns; test++) {
     delay(clickTestDelay);
+
+    if (thereIsUserInput()) {
+      Serial.println("Stopping test.");
+      return;
+    }
 
     startTime = micros();
     clickMouse();
@@ -114,13 +129,21 @@ void clickTest() {
         break;
     }
     releaseMouse();
+
     int time = (endTime - startTime) / 1000;
     clickTimes[test] = time;
-    cumulative += time;
+
+    delta = time - mean;
+    mean += + delta / (test + 1);
+    m2 += + delta * (time - mean);
+
     Serial.print("  run ("); Serial.print(test, DEC); Serial.print("/"); Serial.print(clickTestRuns, DEC);
     Serial.print("): ");Serial.print(time, DEC); Serial.println("ms");
   }
-  Serial.print("Average: "); Serial.print(cumulative / clickTestRuns, DEC); Serial.println("ms");
+
+  double stddev = sqrt(m2 / (clickTestRuns - 1));
+  Serial.print("mean: "); Serial.print(mean); Serial.println("ms");
+  Serial.print("stddev: "); Serial.println(stddev);
 }
 
 
@@ -175,7 +198,7 @@ void showResults() {
 // Just print out values every half second.
 void calibrate() {
   Serial.println("Printing photosensor values (press any button to exit)");
-  while(!(Serial.available() > 0)) {
+  while(!thereIsUserInput()) {
     int photoval = analogRead(photocellPin);
     Serial.print("Read ");
     Serial.print(photoval, DEC);
@@ -221,3 +244,8 @@ void moveDown() { Serial1.write(mouseMoveDown, 7); }
 void moveUp() { Serial1.write(mouseMoveUp, 7); }
 void moveLeft() { Serial1.write(mouseMoveLeft, 7); }
 void moveRight() { Serial1.write(mouseMoveRight, 7); }
+
+// Return true if the user input anything
+boolean thereIsUserInput() {
+  return (Serial.available() > 0);
+}
