@@ -294,6 +294,7 @@
 				10715C0116585DEE00B3B956 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
