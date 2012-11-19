@@ -1,1 +1,9 @@
 .metadata/
+
+*.ap_
+*.dex
+*.class
+# generated files
+bin/
+gen/
+local.properties
