@@ -29,7 +29,7 @@ static const char MOVEMOUSELEFT = '3';
 static const char MOVEMOUSERIGHT = '4';
 
 // click test vars
-const int clickTestRuns = 5;
+const int clickTestRuns = 150;
 unsigned clickTimes[clickTestRuns];
 const int clickTestDelay = 503; // delay between tests. Make sure this won't sync on vsync! (aka not a multiple of 16.67ms)
 
