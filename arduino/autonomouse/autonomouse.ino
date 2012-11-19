@@ -1,16 +1,12 @@
-// Lag Buster
-// pdr@google
+// Autonomouse
 // TODO: disable interrupts
-
-static int PHOTO_ON = 1;
-static int PHOTO_OFF = -1;
-static int PHOTO_IDK = 0;
 
 // pin settings
 const int photocellPin = 5; // analog pin
 
-// general test variables
+// general test vars
 const unsigned long timeout = 1000000; // microseconds, test timeout
+
 // BlueSmirf's HID mouse commands. See http://goo.gl/FBpHs for sparse details.
 // Note: RN42 chip needs to be put into mouse HID mode with "SH,0220".
 const byte mouseDown[] = {0xFD, 0x05, 0x02, 0x01, 0x00, 0x00, 0x00};
@@ -20,20 +16,31 @@ const byte mouseMoveUp[] = {0xFD, 0x05, 0x02, 0x00, 0x00, 0xF0, 0x00};
 const byte mouseMoveDown[] = {0xFD, 0x05, 0x02, 0x00, 0x00, 0x10, 0x00};
 const byte mouseMoveLeft[] = {0xFD, 0x05, 0x02, 0x00, 0xF0, 0x00, 0x00};
 const byte mouseMoveRight[] = {0xFD, 0x05, 0x02, 0x00, 0x10, 0x00, 0x00};
+
+// commands for controlling the device via serial USB
 static const char CLICKTEST = 'a';
 static const char SCROLLTEST = 'b';
-static const char RESETBT = 'c';
 static const char CALIBRATE = 'd';
-static const char RESULTS = 'e';
+static const char PRINTRESULTS = 'e';
+static const char MOVEMOUSEUP = '1';
+static const char MOVEMOUSEDOWN = '2';
+static const char MOVEMOUSELEFT = '3';
+static const char MOVEMOUSERIGHT = '4';
 
-// click test variables
+// click test vars
 const int clickTestRuns = 150;
 unsigned clickTimes[clickTestRuns];
+const int clickTestDelay = 503; // delay between tests. Make sure this won't sync on vsync! (aka not a multiple of 16.67ms)
 
-// scroll test variables
+// scroll test vars
 const int scrollDelay = 19; // ms, time between mouse events
 const int scrollBufferSize = 150; // number of scroll events to record
 unsigned scrollTimes[scrollBufferSize];
+
+// photo state vars
+static int PHOTO_ON = 1;
+static int PHOTO_OFF = -1;
+static int PHOTO_IDK = 0;
 
 void setup(void) {
   Serial.begin(115200);
@@ -41,17 +48,15 @@ void setup(void) {
 }
 
 void loop(void) {
-  Serial.println("Lag Buster");
-  Serial.println("a: click test.");
-  Serial.println("b: scroll test.");
-  // TESTING ONLY
-  //Serial.println("c: reset bluetooth.");
-  Serial.println("d: calibrate sensor.");
-  // TESTING ONLY
-  //Serial.println("e: show results.");
+  Serial.println("Autonomouse");
+  Serial.print(CLICKTEST); Serial.println(": click test.");
+  Serial.print(SCROLLTEST); Serial.println(": scroll test.");
+  Serial.print(CALIBRATE); Serial.println(": calibrate sensor.");
+  Serial.print(PRINTRESULTS); Serial.println(": print results.");
+  Serial.print(MOVEMOUSEUP); Serial.print("-"); Serial.print(MOVEMOUSERIGHT); Serial.println(": move mouse.");
 
   while(true) {
-    delay(10); // Don't waste power in menus
+    delay(100); // Don't waste power in menus
     if (Serial.available() > 0) {
       char val = Serial.read();
       switch (val) {
@@ -63,21 +68,18 @@ void loop(void) {
           delay(5000); // TESTING ONLY
           scrollTest();
           return;
-        case (RESETBT):
-          Serial.write("resetting bluetooth\n");
-          return;
         case (CALIBRATE):
           calibrate();
           return;
-        case (RESULTS):
+        case (PRINTRESULTS):
           showResults();
           return;
-        case ('1'): moveUp(); break;
-        case ('2'): moveDown(); break;
-        case ('3'): moveLeft(); break;
-        case ('4'): moveRight(); break;
+        case (MOVEMOUSEUP): moveUp(); break;
+        case (MOVEMOUSEDOWN): moveDown(); break;
+        case (MOVEMOUSELEFT): moveLeft(); break;
+        case (MOVEMOUSERIGHT): moveRight(); break;
         default:
-          Serial.write("unknown command:");
+          Serial.print("unknown command:");
           Serial.print(val);
           while (Serial.peek() != -1) {
             val = Serial.read();
@@ -102,7 +104,7 @@ void clickTest() {
   int cumulative = 0;
   int initialPhotoState = photoState();
   for (int test = 0; test < clickTestRuns; test++) {
-    delay(503); // delay between tests. Note: make sure this won't sync on vsync! (aka not a multiple of 16.67ms)
+    delay(clickTestDelay);
 
     startTime = micros();
     clickMouse();
@@ -213,6 +215,8 @@ void clickAndMoveMouseDown() {
   Serial1.write(mouseDownAndMoveDown, 7);
 }
 
+// Move mouse commands
+// useful for positioning the mouse over our click region.
 void moveDown() { Serial1.write(mouseMoveDown, 7); }
 void moveUp() { Serial1.write(mouseMoveUp, 7); }
 void moveLeft() { Serial1.write(mouseMoveLeft, 7); }
