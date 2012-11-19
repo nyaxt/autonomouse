@@ -1,8 +1,16 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <!--
 click.html
 
-On mousedown or touchstart, change the background from black to white.
+On mousedown or touchstart, change the div background from black to white.
+
+Use ?XXX,YYY parameters to set the div size
+E.g.:
+  click.html?100,100 - 100px * 100px div
+  click.html?1000,1000 - 500px * 500px div
+
+Use the smallest possible values for pure input latency testing, and
+larger values to include fillrate latency.
 -->
 <html>
 <head>
@@ -15,24 +23,37 @@ html, body {
   height: 100%;
 }
 body {
+  background-color: #030;
+}
+#div {
+  margin: 25px;
   background-color: #000;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 }
 </style>
 </head>
 <body>
+<div id="div"> </div>
 <script>
-var body = document.body;
-body.ontouchstart = function() {
-    body.style.backgroundColor = '#fff';
+var div = document.getElementById('div');
+
+var dimensions = document.location.search.match(/^\?(\d+),(\d+)/);
+if (!dimensions)
+  dimensions = [0, 500, 500];
+div.style.width = dimensions[1] + 'px';
+div.style.height = dimensions[2] + 'px';
+
+div.ontouchstart = function(evt) {
+    div.style.backgroundColor = '#fff';
 }
-body.ontouchend = function() {
-    body.style.backgroundColor = '#000';
+div.ontouchend = function(evt) {
+    div.style.backgroundColor = '#000';
 }
-body.onmousedown = function() {
-    body.style.backgroundColor = '#fff';
+div.onmousedown = function(evt) {
+    div.style.backgroundColor = '#fff';
 }
-body.onmouseup = function() {
-    body.style.backgroundColor = '#000';
+div.onmouseup = function(evt) {
+    div.style.backgroundColor = '#000';
 }
 </script>
 </body>

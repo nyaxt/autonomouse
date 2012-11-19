@@ -1,10 +1,18 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <!--
 clickGL.html
 
 On mousedown or touchstart, change the canvas background from black to white.
 
-Similar to clickSmall.html but with a WebGL context.
+Similar to click.html but with a WebGL context.
+
+Use ?XXX,YYY parameters to set the canvas size
+E.g.:
+  clickCanvas.html?100,100 - 100px * 100px canvas
+  clickCanvas.html?1000,1000 - 500px * 500px canvas
+
+Use the smallest possible values for pure input latency testing, and
+larger values to include fillrate latency.
 -->
 <html>
 <head>
@@ -20,34 +28,45 @@ body {
   background-color: #300;
 }
 #canvas {
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  top: 10px;
-  left: 10px;
+  margin: 25px;
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 }
 </style>
 </head>
 <body>
-<canvas id="canvas" width="500" height="500"></canvas>
+<canvas id="canvas"></canvas>
 <script>
 var canvas = document.getElementById('canvas');
-var gl = canvas.getContext('experimental-webgl');
-var pressed = false;
-var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame;
-var rafCallback = function() {
-  var color = pressed ? 1 : 0;
-  gl.clearColor(color, color, color, 1);
-  gl.clear(gl.COLOR_BUFFER_BIT);
-  raf(rafCallback);
-};
-rafCallback();
 
-canvas.ontouchstart = function(evt) { pressed = true; }
-canvas.ontouchend = function(evt) { pressed = false; }
-canvas.onmousedown = function(evt) { pressed = true; }
-canvas.onmouseup = function(evt) { pressed = false; }
+var dimensions = document.location.search.match(/^\?(\d+),(\d+)/);
+if (!dimensions)
+  dimensions = [0, 500, 500];
+canvas.width = dimensions[1];
+canvas.height = dimensions[2];
+
+var gl = canvas.getContext('experimental-webgl');
+gl.clearColor(0, 0, 0, 1);
+gl.clear(gl.COLOR_BUFFER_BIT);
+
+canvas.ontouchstart = function(evt) {
+  gl.clearColor(1, 1, 1, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+}
+
+canvas.ontouchend = function(evt) {
+  gl.clearColor(0, 0, 0, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+}
+
+canvas.onmousedown = function(evt) {
+  gl.clearColor(1, 1, 1, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+}
+
+canvas.onmouseup = function(evt) {
+  gl.clearColor(0, 0, 0, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+}
 </script>
 </body>
 </html>

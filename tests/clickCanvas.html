@@ -1,10 +1,18 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <!--
 clickCanvas.html
 
 On mousedown or touchstart, change the canvas background from black to white.
 
-Similar to clickSmall.html but with a canvas (for platforms that accelerate canvas).
+Similar to click.html but with a canvas (for platforms that accelerate canvas).
+
+Use ?XXX,YYY parameters to set the canvas size
+E.g.:
+  clickCanvas.html?100,100 - 100px * 100px canvas
+  clickCanvas.html?1000,1000 - 500px * 500px canvas
+
+Use the smallest possible values for pure input latency testing, and
+larger values to include fillrate latency.
 -->
 <html>
 <head>
@@ -20,40 +28,41 @@ body {
   background-color: #003;
 }
 #canvas {
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  top: 10px;
-  left: 10px;
+  margin: 25px;
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 }
 </style>
 </head>
-<body onload="init()">
+<body>
 <canvas id="canvas"></canvas>
 <script>
 var canvas = document.getElementById('canvas');
+
+var dimensions = document.location.search.match(/^\?(\d+),(\d+)/);
+if (!dimensions)
+  dimensions = [0, 500, 500];
+canvas.width = dimensions[1];
+canvas.height = dimensions[2];
+
 var context = canvas.getContext('2d');
-canvas.ontouchstart = function() {
+context.fillStyle = "#000";
+context.fillRect(0, 0, dimensions[1], dimensions[2]);
+
+canvas.ontouchstart = function(evt) {
   context.fillStyle = "#fff";
-  context.fillRect(0, 0, 500, 500);
+  context.fillRect(0, 0, dimensions[1], dimensions[2]);
 }
-canvas.ontouchend = function() {
+canvas.ontouchend = function(evt) {
   context.fillStyle = "#000";
-  context.fillRect(0, 0, 500, 500);
+  context.fillRect(0, 0, dimensions[1], dimensions[2]);
 }
 canvas.onmousedown = function(evt) {
   context.fillStyle = "#fff";
-  context.fillRect(0, 0, 500, 500);
+  context.fillRect(0, 0, dimensions[1], dimensions[2]);
 }
-canvas.onmouseup = function() {
+canvas.onmouseup = function(evt) {
   context.fillStyle = "#000";
-  context.fillRect(0, 0, 500, 500);
-}
-
-function init() {
-  context.fillStyle = "#000";
-  context.fillRect(0, 0, 500, 500);
+  context.fillRect(0, 0, dimensions[1], dimensions[2]);
 }
 </script>
 </body>
