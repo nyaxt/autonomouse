@@ -32,9 +32,10 @@ static const char MOUSEDRAGUP = '5';
 static const char MOUSEDRAGDOWN = '6';
 
 // click test vars
-const int clickTestRuns = 150;
+const int clickTestRuns = 500;
 unsigned clickTimes[clickTestRuns];
-const int clickTestDelay = 503; // delay between tests. Make sure this won't sync on vsync! (aka not a multiple of 16.67ms)
+const int clickTestDelay = 500; // delay between tests.
+const int clickTestRandomDelay = 50; // random component for delay between tests so we don't lock on vsync.
 
 // scroll test vars
 const int scrollDelay = 60; // ms, time between mouse events
@@ -119,7 +120,7 @@ void clickTest() {
   double delta;
 
   for (int test = 0; test < clickTestRuns; test++) {
-    delay(clickTestDelay);
+    delay(clickTestDelay + random(clickTestRandomDelay));
 
     if (thereIsUserInput()) {
       Serial.println("Stopping test.");
